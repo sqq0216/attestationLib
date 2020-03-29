@@ -1,0 +1,11 @@
+version: '3.1'
+services:
+  occlum-build:
+    container_name: attestaion
+    image: occlum/occlum:0.8.0
+    volumes:
+      - /home/ubuntu-sqq/SGXProject/Occlum/Occlum0.8.0/occlum-0.8.0/demos/remote_attestation:/root/demos/
+    devices:
+      - "/dev/isgx:/dev/isgx"
+    tty: true
+    stdin_open: true
