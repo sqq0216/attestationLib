@@ -21,11 +21,11 @@ def tcplink(sock, addr):
                 break
             print("server recv data",data,type(data))        
             #向服务端发送请求进行认证，认证接收到的数据
-            attest_res = requests.get("https://www.baidu.com/")
+            attest_res = requests.get("http://127.0.0.1:8000/sig_attest/")
             print("attest_res status_code is :", attest_res.status_code)
             if attest_res.status_code == 200:
                 print("认证成功")
-                salt = ''.join(random.sample(string.ascii_letters + string.digits, 6))
+                salt = ''.join(random.sample(string.ascii_letters + string.digits, 12))
                 sock.send(salt.encode(encoding='utf-8'))
             else:
                 sock.send(b'failed')
@@ -39,6 +39,7 @@ def tcplink(sock, addr):
             time.sleep(1)
             if not data or data.decode('utf-8') == 'exit':
                 break
+            print("server recv data is :",data,type(data))
             sock.send(('Hello, %s!' % data.decode('utf-8')).encode('utf-8'))
         sock.close()
         print('Connection from %s:%s closed.' % addr)

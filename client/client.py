@@ -53,4 +53,5 @@ def data_soc(s):
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('127.0.0.1', 9999))
 print(attest_soc(s))
+# print(data_soc(s))
 s.close()
