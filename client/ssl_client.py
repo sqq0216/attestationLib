@@ -1,16 +1,14 @@
 # -*- coding: UTF-8 -*-
 import socket
 import ssl
-import os
 
 class client_ssl:
     def send_hello(self,):
         # 生成SSL上下文
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        context = ssl.create_default_context()
+        # context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         # 加载信任根证书
-        file='D:\SGX\attestation\attestationLib\client\certs\ca.crt'
-        print(os.path.dirname(file))
-        context.load_verify_locations('certs/ca.crt')
+        # context.load_verify_locations('certs/ca.crt')
 
         # 与服务端建立socket连接
         with socket.create_connection(('127.0.0.1', 9443)) as sock:
@@ -22,7 +20,7 @@ class client_ssl:
                 ssock.send(msg)
                 # 接收服务端返回的信息
                 msg = ssock.recv(1024).decode("utf-8")
-                print(f"receive msg from server : {msg}")
+                print("receive msg from server : {}".format(msg))
                 ssock.close()
 
 if __name__ == "__main__":

@@ -21,5 +21,5 @@ from server import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('sig_attest/',views.sig_attest),
-    # path('quote_attest/',views.quote_attest),
+    path('quote_attest/',views.quote_attest),
 ]

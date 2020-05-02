@@ -5,6 +5,7 @@ from unittest import TestCase
 import random
 import string
 from django.http import JsonResponse
+import logging
 
 base_url = "https://www.baidu.com/"
 
@@ -20,62 +21,32 @@ def sig_attest(request):
         return JsonResponse({'status':404, 'message':'认证失败'})
         print("attestation failed")
 
+# encalve 认证接口2(quote)
+def quote_attest(request):
+    quote_data = request.POST.get('isvEnclaveQuote')
+    
+    if quote_data is None:
+        return JsonResponse({'status':10021,'message':'parameter error'})
 
+    url = "https://api.trustedservices.intel.com/sgx/dev/attestation/v4/report"
+    headers = {'Ocp-Apim-Subscription-Key':'801e6f2c64a74f5ca3b0e25749add6ed'}
+    # body = {"isvEnclaveQuote": "AgABAI8LAAAKAAkAAAAAAOowCfk2OW73srd6ihwINLcAAAAAAAAAAAAAAAAAAAAADg4CBP8CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAfAAAAAAAAAEOHyd1bZIb5qHElFzWh5e2rCqbK1bOqdFnViGp62wfuAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACD1xnnferKFHD2uvYqTXdDA8iZ22kCD5xw7h38CMfOngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqAIAAJEd+bif0yFBLdVurRkr0jl+QyosRpDSuxxhNIk7mEGGJzYljR3naNzIusPcD63vEGejqVX8LTz/k45u8BsLwHXEUz3ikBQSAcKEIgXFAiWgjvuVjlrkoMyBeH0zr3nri1e2uc7PeC076YohL344ArDMwQpRWtPZ4mZhTKA8KT+X6PBYAtCAZQGy5yRDHCe18tgQgVn1anT/TK2Z4RdSiBMhNtMbvUwy9RmZ/bqbb0JagwFw4SMmI9axCVO4MaKgP1CtA/EXGIeGWOkmHKC6zbh+iL6vZPN6nrwZItPA+vD+T1EylkkGp23wbhBI04vs6rIAT9HZJNovOIVQYj/WkrmRwfXvzY55Eik8I69y0PA00QpYU5lCr53tiJRKEMUKLuri4Hi2qzB6SwF75GgBAABz2etJpdBMHUwCE9E/cUHq4duX5txx2YMNS5taWrGx99dL9xFiF7j93JFJLbtvt6/XlM/AgrZ47I5qWQYOYMxBkVnw5zuR/BkREwGqmjtSsf8l7fvEdXd3xnR0w7+Eqm6ror8KW+Sj8E8JtMWkGCAXCgsLHerumfi7DUsBQx62CfrndojHT/h4+BEb/sZwancBzn1NBSx5ZeSVwh8mT+RFUPgZxQecF+CQkYDuSeaRxVxjLKF0lieYYG8Jagh3VCNFJkAlgy73Qwy2Tr3sD7TwPSLM/7axdRolMRCGkAqeFxz/PrWvmEnDUtAywrFBiidDoKzc1BwNV3JtGLlJHCuMI9Oi1n7j19ie1XiUSepNgdCsQ3zqNz5ZhTeBjNog3WiLP4cDySUHtQg2Kk4hCDhm6IBVAr7vPZDo/0ItreNO9HVciomS1Lh1cXW4HnXjXGy/HgjNaCv2SVLDopg7Oae7pnRCebad3jOGuWuVfWdC/b2U7cHuXhF2"}
+    body = {"isvEnclaveQuote":quote_data}
+    response_data = requests.post(url,headers=headers, json=body)
+    res_status = response_data.status_code
+    res_body = response_data.text
 
-class IasApiTest(TestCase):
-    def setUp(self):
-        self.baseUrl = "https://test-as.sgx.trustedservices.intel.com/"
-        print("开始认证，baseUrl=",self.baseUrl)
+    # 添加日志 ,返回数据作处理TODO  
+    if res_status == 200:
+        print("认证成功")
+        return JsonResponse({'status':200,'message':'attest success','data':res_body})       
+    else:
+        return JsonResponse({'status':10023,'message':'event status is not available'})
+        print("认证失败")
+    
+        
+    
 
-    def tearDown(self):
-        print("认证结束")
-
-    def test_get(self):
-        apiUrl = "/attestation/sgx/v3/sigrl/A3291A3"
-        url = self.baseUrl + apiUrl
-        # url1 = "https://api.trustedservices.intel.com/sgx/attestation/v3/sigrl/00000010"
-        print("当前访问url为",url)
-        headers = {'Ocp-Apim-Subscription-Key': '801e6f2c64a74f5ca3b0e25749add6ed'}
-        r = requests.get(url, headers=headers)
-        # r_json = r.json()
-        print("status_code is :", r.status_code)
-        print("response is ", r.text)
-        # print(r.json())
-
-    def test_post(self):
-        apiUrl = "/attestation/v3/report"
-        url = self.baseUrl + apiUrl
-        headers = {'Ocp-Apim-Subscription-Key':'801e6f2c64a74f5ca3b0e25749add6ed'}
-        body = {"isvEnclaveQuote":"AAEAAAEAAA+yth5<...encoded_quote...>GuOKBJ+5cs0PQcnZp"}
-        res = requests.post(url,headers=headers, json=body)
-        print("status_code is :", res.status_code)
-        print("response is ", res.headers)
-        print("response body is :", res.text)
-        if res.status_code == 200:
-            print("认证成功")
-        else:
-            print("认证失败")
-    def test_test(self):
-        data = ' ' 
-        s = 'EIDKFJ'
-        data.join(s)
-        print(data)
-        # url = "https://www.baidu.com/"
-        # res = requests.get(url)
-        # print("status code is :", res.status_code)
-        # if res.status_code == 200:
-        #     print("认证成功")
-        #     salt = ''.join(random.sample(string.ascii_letters + string.digits, 6))
-        #     print(salt.encode(encoding='utf-8'))
-        # else:
-        #     print("认证失败")
-
-#if __name__ == "__main__":
-#     # unittest.main(verbosity=2)
-#     suit = unittest.TestSuite()
-#     suit.addTest(IasApiTest("test_test"))
-#     runner = unittest.TextTestRunner()
-#     runner.run(suit)
 
 
     

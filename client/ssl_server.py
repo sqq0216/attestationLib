@@ -1,14 +1,15 @@
 import socket
 import ssl
-from sys import path
 
 class server_ssl:
     def build_listen(self):
         # 生成SSL上下文
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        # 加载服务器所用证书和私钥
-        
-        context.load_cert_chain('certs\qian_server.crt', 'certs\qian_server.pem')
+        context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        context.load_cert_chain(certfile="./server.crt", keyfile="./localhost.pem")
+
+        # context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        # # 加载服务器所用证书和私钥
+        # context.load_cert_chain('certs/server.crt', 'certs/server_rsa_private.pem.unsecure')
 
         # 监听端口
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
@@ -21,9 +22,9 @@ class server_ssl:
                     client_socket, addr = ssock.accept()
                     # 接收客户端信息
                     msg = client_socket.recv(1024).decode("utf-8")
-                    print(f"receive msg from client {addr}：{msg}")
+                    print("receive msg from client {}：{}".format(addr,msg))
                     # 向客户端发送信息
-                    msg = f"yes , you have client_socketect with server.\r\n".encode("utf-8")
+                    msg = "yes , you have client_socketect with server.\r\n".encode("utf-8")
                     client_socket.send(msg)
                     client_socket.close()
 
